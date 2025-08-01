@@ -18,3 +18,6 @@ FORMS += \
 
 HEADERS += \
     scriptcanvas.h
+
+SOURCES += \
+    scriptcanvas.cpp

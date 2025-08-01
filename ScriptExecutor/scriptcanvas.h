@@ -14,7 +14,23 @@ class ScriptCanvas : public QWidget
 public:
     explicit ScriptCanvas(int width = 800, int height = 600, QWidget *parent = nullptr);
 
-    Q_INVOKABLE void setBrushColor();
+    Q_INVOKABLE void setBrushColor(int r, int g, int b, int a = 255);
+    Q_INVOKABLE void setPenColor(int r, int g, int b, int a = 255);
+    Q_INVOKABLE void setPenWidth(int width);
+    Q_INVOKABLE void drawFilledCircle(int x, int y, int radius);
+    Q_INVOKABLE void drawCircle(int x, int y, int radius);
+    Q_INVOKABLE void drawRect(int x, int y, int height);
+    Q_INVOKABLE void drawPolygon(const QVariantList &points);
+    Q_INVOKABLE void drawLine(int x1, int y1, int x2, int y2);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    QColor penColor;
+    QColor brushColor;
+    int penWidth;
+    QVector<QPainterPath> shapes;
 };
 
 #endif // SCRIPTCANVAS_H
