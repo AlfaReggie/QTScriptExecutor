@@ -28,6 +28,20 @@ void ScriptCanvas::drawFilledCircle(int x, int y, int radius) {
     update();
 }
 
+void ScriptCanvas::drawCircle(int x, int y, int radius) {
+    QPainterPath path;
+    path.addEllipse(x - radius, y - radius, radius * 2, radius * 2);
+    shapes.append(path);
+    update();
+}
+
+void ScriptCanvas::drawRect(int x, int y, int width, int height) {
+    QPainterPath path;
+    path.addRect(x, y, width, heigth);
+    shapes.append(path);
+    update();
+}
+
 void ScriptCanvas::drawPolygon(const QVariantList &points) {
     if (points.size() >= 6 && points.size() % 2 == 0) {
         QPainterPath path;
@@ -38,7 +52,30 @@ void ScriptCanvas::drawPolygon(const QVariantList &points) {
         }
 
         path.closeSubpath();
-        shapes.append();
+        shapes.append(path);
         update();
+    }
+}
+
+void ScriptCanvas::drawLine(int x1, int y1, int x2, int y2) {
+    QPainterPath path;
+    path.moveTo(x1, y1);
+    path.lineTo(x2, y2);
+    shapes.append(path);
+    update();
+}
+
+void ScriptCanvas::paintEvent(QPaintEvent *event) {
+    Q_UNUSED(event);
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    painter.fillRect(rect(), Qt::white);
+
+    for (const QPainterPath &path : shapes) {
+        painter.setPen(QPen(penColor, penWidth));
+        painter.setBrush(brushColor);
+        painter.drawPath(path);
     }
 }

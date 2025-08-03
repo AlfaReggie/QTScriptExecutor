@@ -10,14 +10,13 @@ SOURCE += \
     main.cpp \
     scriptexecutor.cpp
 
-HEADER += \
-    scriptexecutor.h
-
 FORMS += \
     scriptexecutor.ui
 
 HEADERS += \
-    scriptcanvas.h
+    scriptcanvas.h \
+    scriptexecutor.h
 
 SOURCES += \
-    scriptcanvas.cpp
+    scriptcanvas.cpp \
+    scriptexecutor.cpp

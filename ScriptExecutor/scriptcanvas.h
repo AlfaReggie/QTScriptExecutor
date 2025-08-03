@@ -19,7 +19,7 @@ public:
     Q_INVOKABLE void setPenWidth(int width);
     Q_INVOKABLE void drawFilledCircle(int x, int y, int radius);
     Q_INVOKABLE void drawCircle(int x, int y, int radius);
-    Q_INVOKABLE void drawRect(int x, int y, int height);
+    Q_INVOKABLE void drawRect(int x, int y, int wigth, int height);
     Q_INVOKABLE void drawPolygon(const QVariantList &points);
     Q_INVOKABLE void drawLine(int x1, int y1, int x2, int y2);
 
