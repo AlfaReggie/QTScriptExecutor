@@ -37,7 +37,7 @@ void ScriptCanvas::drawCircle(int x, int y, int radius) {
 
 void ScriptCanvas::drawRect(int x, int y, int width, int height) {
     QPainterPath path;
-    path.addRect(x, y, width, heigth);
+    path.addRect(x, y, width, height);
     shapes.append(path);
     update();
 }
@@ -48,7 +48,7 @@ void ScriptCanvas::drawPolygon(const QVariantList &points) {
         path.moveTo(points[0].toInt(), points[1].toInt());
 
         for (int var = 2; var < points.size(); var += 2) {
-            path.lineTo(points[i].toInt(), points[i + 1].toInt());
+            path.lineTo(points[var].toInt(), points[var + 1].toInt());
         }
 
         path.closeSubpath();

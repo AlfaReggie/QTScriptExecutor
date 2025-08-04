@@ -1,6 +1,7 @@
 #ifndef SCRIPTCANVAS_H
 #define SCRIPTCANVAS_H
 
+#include <QPainterPath>
 #include <QWidget>
 #include <QPainter>
 #include <QPaintEvent>
