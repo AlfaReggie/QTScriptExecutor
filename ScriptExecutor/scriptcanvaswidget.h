@@ -1,20 +1,20 @@
-#ifndef SCRIPTCANVAS_H
-#define SCRIPTCANVAS_H
+#ifndef SCRIPTCANVASWIDGET_H
+#define SCRIPTCANVASWIDGET_H
 
 #include <QWidget>
 #include <QPainterPath>
-#include <QPaintEvent>
 #include <QVector>
 #include <QColor>
-#include <QVariantList> // Для QVariantList
+#include <QVariantList>
 
-class ScriptCanvas : public QWidget
+
+class ScriptCanvasWidget : public QWidget
 {
     Q_OBJECT
 
 public:
+    explicit ScriptCanvasWidget(QWidget *parent = nullptr);
 
-    explicit ScriptCanvas(int width = 800, int height = 600, QWidget *parent = nullptr);
     Q_INVOKABLE void clear();
     Q_INVOKABLE void setBrushColor(int r, int g, int b, int a = 255);
     Q_INVOKABLE void setPenColor(int r, int g, int b, int a = 255);
@@ -36,4 +36,4 @@ private:
     QVector<QPainterPath> shapes;
 };
 
-#endif // SCRIPTCANVAS_H
+#endif // SCRIPTCANVASWIDGET_H

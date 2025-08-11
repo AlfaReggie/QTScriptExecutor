@@ -1,18 +1,47 @@
 #include "scriptexecutor.h"
 #include "ui_scriptexecutor.h"
-#include "scriptcanvas.h"
-#include <QMessageBox>
-#include <QDateTime>
+#include "scriptcanvaswidget.h"
+#include <QNetworkDatagram>
+#include <QDataStream>
 #include <QJSEngine>
+#include <QJSValue>
+#include <QVBoxLayout>
+#include <QDateTime>
 
-ScriptExecutor::ScriptExecutor(QWidget *parent) : QMainWindow(parent), ui(new Ui::ScriptExecutor), canvas(nullptr) {
-    ui ->setupUi(this);
+ScriptExecutor::ScriptExecutor(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::ScriptExecutor)
+    , udpSocket(nullptr)
+    , m_canvasWidget(nullptr)
+{
+    ui->setupUi(this);
+
+    m_canvasWidget = new ScriptCanvasWidget(this);
+
+    if (ui->centralwidget->layout() == nullptr) {
+        QVBoxLayout *mainLayout = new QVBoxLayout(ui->centralwidget);
+        QWidget *mainCentralWidget = new QWidget(this);
+        QVBoxLayout *mainCentralLayout = new QVBoxLayout(mainCentralWidget);
+
+        ui->verticalLayout->addWidget(m_canvasWidget);
+        ui->verticalLayout->setStretchFactor(ui->logDisplay, 0);
+        ui->verticalLayout->setStretchFactor(ui->horizontalLayout, 0);
+        ui->verticalLayout->setStretchFactor(m_canvasWidget, 1);
+    } else {
+        ui->verticalLayout->addWidget(m_canvasWidget);
+        ui->verticalLayout->setStretchFactor(m_canvasWidget, 1);
+    }
 
     udpSocket = new QUdpSocket(this);
-
     connect(udpSocket, &QUdpSocket::readyRead, this, &ScriptExecutor::readPendingDatagrams);
 
-    ui -> logDisplay -> append(QString("[%1] Script Executor is ready to start").arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
+    ui->logDisplay->append(QString("[%1] Script Executor готов к запуску")
+                               .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
+}
+
+ScriptExecutor::~ScriptExecutor()
+{
+    delete ui;
 }
 
 void ScriptExecutor::on_startButton_clicked()
@@ -33,7 +62,8 @@ void ScriptExecutor::on_startButton_clicked()
                                    .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                                    .arg(port));
     } else {
-        QMessageBox::warning(this, tr("Ошибка"), tr("Не удалось запустить сервер"));
+        QMessageBox::warning(this, tr("Ошибка"), tr("Не удалось запустить сервер: %1")
+                                                     .arg(udpSocket->errorString()));
     }
 }
 
@@ -73,21 +103,19 @@ void ScriptExecutor::executeScript(const QString &script)
         // Создаем движок JavaScript
         QJSEngine engine;
 
-        // Создаем и регистрируем Canvas объект
-        if (canvas) {
-            canvas->deleteLater();
-        }
-
-        canvas = new ScriptCanvas(800, 600);
-        QJSValue canvasObject = engine.newQObject(canvas);
+        QJSValue canvasObject = engine.newQObject(m_canvasWidget);
         engine.globalObject().setProperty("canvas", canvasObject);
+
+        ui->logDisplay->append(QString("[%1] Canvas виджет зарегистрирован")
+                                   .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
 
         // Выполняем скрипт
         QJSValue result = engine.evaluate(script);
 
         if (result.isError()) {
-            QString error = QString("Ошибка выполнения скрипта: %1")
-                                .arg(result.toString());
+            QString error = QString("Ошибка выполнения скрипта: %1\nСтрока: %2")
+                                .arg(result.toString())
+                                .arg(result.property("lineNumber").toInt());
             ui->logDisplay->append(QString("[%1] %2")
                                        .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                                        .arg(error));
@@ -98,13 +126,13 @@ void ScriptExecutor::executeScript(const QString &script)
                                        .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
                                        .arg(successMsg));
 
-            // Показываем холст с результатами
-            if (canvas) {
-                canvas->show();
-            }
+            // Принудительно обновляем виджет, на всякий случай
+            m_canvasWidget->update();
 
             sendResult(successMsg, true);
         }
+        // engine уничтожается здесь.
+        // Он НЕ будет удалять m_canvasWidget, потому что его родитель - this (ScriptExecutor)
     } catch (const std::exception &e) {
         QString error = QString("Исключение при выполнении скрипта: %1").arg(e.what());
         ui->logDisplay->append(QString("[%1] %2")

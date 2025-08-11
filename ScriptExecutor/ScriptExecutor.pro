@@ -3,15 +3,18 @@ QT += core gui widgets network qml
 CONFIG += c++11 warn_on
 
 TARGET = ScriptExecutor
+TEMPLATE = app
 
-TAMPLATE = app
+SOURCES += \
+    main.cpp \
+    scriptcanvaswidget.cpp \
+    scriptexecutor.cpp \
+    scriptcanvas.cpp
+
+HEADERS += \
+    scriptcanvaswidget.h \
+    scriptexecutor.h \
+    scriptcanvas.h
 
 FORMS += \
     scriptexecutor.ui
-
-SOURCES += main.cpp \
-           scriptcanvas.cpp \
-           scriptexecutor.cpp    # ← ДОЛЖНО БЫТЬ!
-
-HEADERS += scriptcanvas.h \
-           scriptexecutor.h      # ← ДОЛЖНО БЫТЬ!
