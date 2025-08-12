@@ -14,8 +14,7 @@ QT_END_NAMESPACE
 class ScriptCanvasWidget;
 class QJSEngine;
 
-class ScriptExecutor : public QMainWindow
-{
+class ScriptExecutor : public QMainWindow {
     Q_OBJECT
 
 public:

@@ -8,8 +8,7 @@
 #include <QVariantList>
 
 
-class ScriptCanvasWidget : public QWidget
-{
+class ScriptCanvasWidget : public QWidget {
     Q_OBJECT
 
 public:
@@ -26,7 +25,6 @@ public:
     Q_INVOKABLE void drawLine(int x1, int y1, int x2, int y2);
 
 protected:
-
     void paintEvent(QPaintEvent *event) override;
 
 private:

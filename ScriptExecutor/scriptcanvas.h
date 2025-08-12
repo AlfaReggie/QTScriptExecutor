@@ -8,8 +8,7 @@
 #include <QColor>
 #include <QVariantList>
 
-class ScriptCanvas : public QWidget
-{
+class ScriptCanvas : public QWidget {
     Q_OBJECT
 
 public:
