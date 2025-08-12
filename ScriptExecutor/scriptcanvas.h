@@ -6,7 +6,7 @@
 #include <QPaintEvent>
 #include <QVector>
 #include <QColor>
-#include <QVariantList> // Для QVariantList
+#include <QVariantList>
 
 class ScriptCanvas : public QWidget
 {
@@ -36,4 +36,4 @@ private:
     QVector<QPainterPath> shapes;
 };
 
-#endif // SCRIPTCANVAS_H
+#endif

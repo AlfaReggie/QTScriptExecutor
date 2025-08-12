@@ -6,8 +6,9 @@
 #include <QDateTime>
 #include <QMessageBox>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class ScriptExecutor; }
+QT_BEGIN_NAMESPACE namespace Ui {
+    class ScriptExecutor;
+}
 QT_END_NAMESPACE
 
 class ScriptCanvasWidget;
@@ -39,4 +40,4 @@ private:
     void sendResult(const QString &result, bool success);
 };
 
-#endif // SCRIPTEXECUTOR_H
+#endif

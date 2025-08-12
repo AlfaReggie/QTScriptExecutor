@@ -36,4 +36,4 @@ private:
     QVector<QPainterPath> shapes;
 };
 
-#endif // SCRIPTCANVASWIDGET_H
+#endif

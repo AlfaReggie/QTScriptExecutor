@@ -8,21 +8,14 @@
 #include <QVBoxLayout>
 #include <QDateTime>
 
-ScriptExecutor::ScriptExecutor(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::ScriptExecutor)
-    , udpSocket(nullptr)
-    , m_canvasWidget(nullptr)
-{
+ScriptExecutor::ScriptExecutor(QWidget *parent) : QMainWindow(parent), ui(new Ui::ScriptExecutor), udpSocket(nullptr), m_canvasWidget(nullptr) {
     ui->setupUi(this);
-
     m_canvasWidget = new ScriptCanvasWidget(this);
 
     if (ui->centralwidget->layout() == nullptr) {
         QVBoxLayout *mainLayout = new QVBoxLayout(ui->centralwidget);
         QWidget *mainCentralWidget = new QWidget(this);
         QVBoxLayout *mainCentralLayout = new QVBoxLayout(mainCentralWidget);
-
         ui->verticalLayout->addWidget(m_canvasWidget);
         ui->verticalLayout->setStretchFactor(ui->logDisplay, 0);
         ui->verticalLayout->setStretchFactor(ui->horizontalLayout, 0);
@@ -35,17 +28,14 @@ ScriptExecutor::ScriptExecutor(QWidget *parent)
     udpSocket = new QUdpSocket(this);
     connect(udpSocket, &QUdpSocket::readyRead, this, &ScriptExecutor::readPendingDatagrams);
 
-    ui->logDisplay->append(QString("[%1] Script Executor готов к запуску")
-                               .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
+    ui->logDisplay->append(QString("[%1] Script Executor готов к запуску").arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
 }
 
-ScriptExecutor::~ScriptExecutor()
-{
+ScriptExecutor::~ScriptExecutor() {
     delete ui;
 }
 
-void ScriptExecutor::on_startButton_clicked()
-{
+void ScriptExecutor::on_startButton_clicked() {
     QString portStr = ui->portInput->text();
     quint16 port = portStr.toUShort();
 
@@ -58,17 +48,14 @@ void ScriptExecutor::on_startButton_clicked()
         ui->startButton->setEnabled(false);
         ui->portInput->setEnabled(false);
         ui->statusbar->showMessage(tr("Сервер запущен на порту %1").arg(port));
-        ui->logDisplay->append(QString("[%1] Сервер запущен на порту %2")
-                                   .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-                                   .arg(port));
+        ui->logDisplay->append(QString("[%1] Сервер запущен на порту %2").arg(QDateTime::currentDateTime().toString("hh:mm:ss")).arg(port));
     } else {
         QMessageBox::warning(this, tr("Ошибка"), tr("Не удалось запустить сервер: %1")
                                                      .arg(udpSocket->errorString()));
     }
 }
 
-void ScriptExecutor::readPendingDatagrams()
-{
+void ScriptExecutor::readPendingDatagrams() {
     while (udpSocket->hasPendingDatagrams()) {
         QNetworkDatagram datagram = udpSocket->receiveDatagram();
         senderIP = datagram.senderAddress().toString();
@@ -84,32 +71,24 @@ void ScriptExecutor::readPendingDatagrams()
         in >> command >> script;
 
         if (command == "EXECUTE_SCRIPT") {
-            ui->logDisplay->append(QString("[%1] Получен скрипт от %2:%3")
-                                       .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-                                       .arg(senderIP)
-                                       .arg(senderPort));
-
+            ui->logDisplay->append(QString("[%1] Получен скрипт от %2:%3").arg(QDateTime::currentDateTime().toString("hh:mm:ss")).arg(senderIP).arg(senderPort));
             executeScript(script);
         }
     }
 }
 
-void ScriptExecutor::executeScript(const QString &script)
-{
+void ScriptExecutor::executeScript(const QString &script) {
     ui->logDisplay->append(QString("[%1] Начинаю выполнение скрипта...")
                                .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
 
     try {
-        // Создаем движок JavaScript
         QJSEngine engine;
 
         QJSValue canvasObject = engine.newQObject(m_canvasWidget);
         engine.globalObject().setProperty("canvas", canvasObject);
 
-        ui->logDisplay->append(QString("[%1] Canvas виджет зарегистрирован")
-                                   .arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
+        ui->logDisplay->append(QString("[%1] Canvas виджет зарегистрирован").arg(QDateTime::currentDateTime().toString("hh:mm:ss")));
 
-        // Выполняем скрипт
         QJSValue result = engine.evaluate(script);
 
         if (result.isError()) {
@@ -122,34 +101,22 @@ void ScriptExecutor::executeScript(const QString &script)
             sendResult(error, false);
         } else {
             QString successMsg = "Скрипт выполнен успешно";
-            ui->logDisplay->append(QString("[%1] %2")
-                                       .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-                                       .arg(successMsg));
-
-            // Принудительно обновляем виджет, на всякий случай
+            ui->logDisplay->append(QString("[%1] %2").arg(QDateTime::currentDateTime().toString("hh:mm:ss")).arg(successMsg));
             m_canvasWidget->update();
-
             sendResult(successMsg, true);
         }
-        // engine уничтожается здесь.
-        // Он НЕ будет удалять m_canvasWidget, потому что его родитель - this (ScriptExecutor)
     } catch (const std::exception &e) {
         QString error = QString("Исключение при выполнении скрипта: %1").arg(e.what());
-        ui->logDisplay->append(QString("[%1] %2")
-                                   .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-                                   .arg(error));
+        ui->logDisplay->append(QString("[%1] %2").arg(QDateTime::currentDateTime().toString("hh:mm:ss")).arg(error));
         sendResult(error, false);
     } catch (...) {
         QString error = "Неизвестная ошибка при выполнении скрипта";
-        ui->logDisplay->append(QString("[%1] %2")
-                                   .arg(QDateTime::currentDateTime().toString("hh:mm:ss"))
-                                   .arg(error));
+        ui->logDisplay->append(QString("[%1] %2").arg(QDateTime::currentDateTime().toString("hh:mm:ss")).arg(error));
         sendResult(error, false);
     }
 }
 
-void ScriptExecutor::sendResult(const QString &result, bool success)
-{
+void ScriptExecutor::sendResult(const QString &result, bool success) {
     QByteArray datagram;
     QDataStream out(&datagram, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_15);
